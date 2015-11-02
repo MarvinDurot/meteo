@@ -1,0 +1,16 @@
+{
+    "name": "marvin/meteo",
+    "description": "REST Weather API",
+    "authors": [
+        {
+            "name": "Marvin Durot",
+            "email": "marvin.durot@iut-valence.fr"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "src"
+        }
+    },
+    "require": {}
+}
