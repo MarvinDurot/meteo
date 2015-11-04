@@ -8,18 +8,49 @@ namespace Core\Database;
  */
 class Database
 {
-    private static $pdo = null; // Le singleton
+    // Instance de la classe
+    private static $instance = null;
+    
+    // Objet PDO
+    private $pdo;
+    
+    private $host;
+    private $database;    
+    private $username;
+    private $password;
     
     /**
-     * Retourne l'objet PDO de la base
-     * @return null|PDO
+     * Constructeur
+     */
+    public function __construct($host, $database, $username, $password)
+    {        
+        $dsn = 'mysql:host='.$this->host.'; dbname='.$this->database.';charset=utf8';
+        
+        try{
+            $this->pdo = new PDO($dsn, $this->username, $this->password);
+        }
+        catch(PDOException $e){
+            throw new DatabaseException();
+        }
+    }
+    
+    /**
+     * Retourne l'instance de la classe de la base
+     * @return null|Database
      */
     static function getInstance()
     {       
-        if (self::$pdo == null) {
-            $dsn = "mysql:host=".Config::get('database.host').";dbname=".Config::get('database.database').";charset=utf8";
-            self::$pdo = new PDO($dsn, Config::get('database.username'), Config::get('database.password'));
+        if (!self::$instance instanceof self) {
+            self::$instance = new self;
         }
-        return self::$pdo;
+        return self::$instance;
+    }
+    
+    /**
+     * Retourne l'objet PDO de la base
+     */
+    public function getPDO()
+    {
+        return $this->pdo;
     }   
 }
