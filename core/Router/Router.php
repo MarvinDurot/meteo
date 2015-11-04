@@ -1,7 +1,5 @@
 <?php
-
-namespace App\Router;
-
+namespace Core\Router;
 
 class Router
 {
@@ -17,13 +15,13 @@ class Router
     public function get($path, $callable)
     {
         $route = new Route($path, $callable);
-        $this->routes['GET'] = $route;
+        $this->routes['GET'][] = $route;
     }
 
     public function post($path, $callable)
     {
         $route = new Route($path, $callable);
-        $this->routes['POST'] = $route;
+        $this->routes['POST'][] = $route;
     }
 
     public function run()
@@ -34,7 +32,7 @@ class Router
 
         foreach($this->routes[$_SERVER['REQUEST_METHOD']] as $route) {
             if ($route->match($this->url)) {
-                $route->call();
+                return $route->call();
             }
         }
 
