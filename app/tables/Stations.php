@@ -3,10 +3,38 @@
 namespace App\Tables;
 use Core\Table\Table;
 
-class StationsTable extends Table
+class Stations extends Table
 {
     protected $table = 'Stations';
     protected $class = 'App\Models\Station';
-    protected $key = ['station'];
+    protected $key = ['id'];
     protected $increment = false;
+
+    /**
+     * Requête préparée
+     * @var null
+     */
+    protected $stmtRelation = null;
+
+    /**
+     * Récupère une station avec sa table de conversion
+     * @param string $id
+     * @return mixed
+     */
+    public function find($id)
+    {
+        $station = parent::find($id);
+
+        // Préparation de la requête
+        if ($this->stmtRelation === null) {
+            $sql = "SELECT mesure, a, b FROM Conversions WHERE station=?";
+            $this->stmtRelation = $this->pdo->prepare($sql);
+        }
+
+        // Éxécution de la requête et récupération des résultats
+        $this->stmtRelation->execute([$id]);
+        $station->conversions = $this->stmtRelation->fetchAll(\PDO::FETCH_ASSOC|\PDO::FETCH_GROUP);
+
+        return $station;
+    }
 }
