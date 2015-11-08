@@ -30,9 +30,9 @@ class Model implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return array_filter($this->getFields(), function ($value, $key) {
+        return array_filter($this->getFields(), function ($key) {
             return in_array($key, $this->jsonnable);
-        });
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
