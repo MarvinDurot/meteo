@@ -119,7 +119,7 @@ class Table
         // Préparation de la requête
         if ($this->stmtFind === null) {
             $sql = "SELECT * FROM $this->table WHERE $this->keyClause";
-            $this->stmtGetOne = $this->pdo->prepare($sql);
+            $this->stmtFind = $this->pdo->prepare($sql);
         }
 
         // Formatage de la clé primaire
