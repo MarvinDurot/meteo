@@ -6,87 +6,242 @@ namespace Core\Table;
  * Class Table
  * Table générique
  */
-abstract class Table {
-
+abstract class Table
+{
+    /**
+     * Propriétés obligatoires :
+     * -> objet PDO
+     * -> nom de la table
+     * -> nom du modèle associé
+     */
     protected $pdo;
     protected $table;
     protected $class;
-    
-    // Nom des champs composant la clé primaire de la table
-    protected $keys = [];
-    protected $keyWhereClause;
 
+    /**
+     * Nom des champs composant
+     * la clé primaire de la table
+     */
+    protected $key = [];
 
-    public function __construct($pdo) 
+    /**
+     * Indique si la clé primaire est autoincrémentée
+     */
+    protected $increment = true;
+
+    /**
+     * Nom des colonnes de la table
+     * (sans le ou les clés primaires)
+     */
+    protected $columns;
+
+    /**
+     * Clauses
+     */
+    protected $keyClause;
+    protected $updateClause;
+
+    /**
+     * Requêtes préparées
+     */
+    protected $stmtFind = null;
+    protected $stmtWhere = null;
+    protected $stmtDelete = null;
+    protected $stmtCreate = null;
+    protected $stmtUpdate = null;
+
+    /**
+     * Constructeur
+     * @param \PDO $pdo
+     */
+    public function __construct($pdo)
     {
-        // Warning si les enfants n'ont pas défini les propriétés obligatoires
+        /* Warning si les enfants n'ont pas défini
+         les propriétés obligatoires */
         assert(isset($this->table));
         assert(isset($this->class));
-        assert(isset($this->keys));
+        assert(isset($this->key));
 
         $this->pdo = $pdo;
-        $this->keyWhereClause = $this->buildKeyWhereClause();
+        $this->columns = $this->getColumns();
+        $this->keyClause = $this->buildKeyClause();
+        $this->updateClause = $this->buildUpdateClause();
     }
-    
-    public function getColumnNames()
+
+    /**
+     * Retrouve les noms des champs de la table sans les clés
+     * @return array
+     * @throws TableException
+     */
+    private function getColumns()
     {
         $stmt = $this->pdo->query("DESCRIBE $this->table");
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if ($stmt->rowCount() === 0)
+            throw new TableException('Table without columns!');
+
+        $columns = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        return array_diff($columns, $this->key);
     }
-    
+
     /**
-     * Construction de la clause WHERE pour la clé primaire (pour find, delete et update)
+     * Construit la clause UPDATE
      * @return string
      */
-    protected function buildKeyClause()
-    {       
-        return implode(' AND', array_map(function($key){ return "$key = ?"; }, $this->keys));        
+    private function buildUpdateClause()
+    {
+        return implode(',', array_map(
+                function ($column) {
+                    return "$column = :$column";
+                }, $this->columns)
+        );
     }
 
     /**
-     * Récupère un enregistrement en base à partir de sa clé
-     * @param array $key
-     * @return mixed
+     * Construit la clause WHERE pour la clé primaire
+     * @return string
      */
-    abstract function find($key) {}
+    private function buildKeyClause()
+    {
+        return implode(' AND', array_map(
+                function ($key) {
+                    return "$key = :$key";
+                }, $this->key)
+        );
+    }
 
     /**
-     * Récupère tous les enregistrements
+     * Récupère un enregistrement de la table
+     * @param array|string $key
      * @return mixed
      */
-    public function all() 
+    public function find($key)
+    {
+        // Préparation de la requête
+        if ($this->stmtFind === null) {
+            $sql = "SELECT * FROM $this->table WHERE $this->keyClause";
+            $this->stmtGetOne = $this->pdo->prepare($sql);
+        }
+
+        // Formatage de la clé primaire
+        $key = (is_array($key)) ? $key : [$key];
+        $key = array_combine($this->key, $key);
+
+        // Éxécution de la requête et récupération des résultats
+        $this->stmtFind->execute($key);
+        $this->stmtFind->setFetchMode(\PDO::FETCH_CLASS, $this->class);
+        return $this->stmtFind->fetch();
+    }
+
+    /**
+     * Récupère plusieurs enregistrement selon un simple critère d'égalité
+     * @param string $column
+     * @param string $value
+     * @param int $limit
+     * @return array
+     */
+    public function where($column, $value, $limit = 0)
+    {
+        // Préparation de la requête
+        if ($this->stmtWhere === null) {
+            $sql = "SELECT * FROM $this->table WHERE ?=? LIMIT ?";
+            $this->stmtWhere = $this->pdo->prepare($sql);
+        }
+
+        // Éxécution de la requête et récupération des résultats
+        $this->stmtWhere->execute([$column, $value, $limit]);
+        $this->stmtWhere->setFetchMode(\PDO::FETCH_CLASS, $this->class);
+        return $this->stmtWhere->fetchAll();
+    }
+
+    /**
+     * Récupère tous les enregistrements de la table
+     * @return mixed
+     */
+    public function all()
     {
         $stmt = $this->pdo->query("SELECT * FROM $this->table");
-        return $stmt->fetchAll(PDO::FETCH_CLASS, $this->class);
-    }    
+        return $stmt->fetchAll(\PDO::FETCH_CLASS, $this->class);
+    }
 
     /**
-     * Sauvegarde un enregistrement en base
-     * @param $obj
-     * @return bool
-     * @throws Exception
+     * Met à jour un enregistrement en base
+     * @param $obj mixed
+     * @throws TableException
      */
-    public function save($obj)
+    public function update($obj)
     {
-        // On teste la classe de l'objet passé en param
+        // On teste la classe de l'objet passé en paramètre
         if (!$obj instanceof $this->class)
             throw new TableException('Invalid object class!');
-            
-        
+
+        // Récupération des champs de l'objet
+        $fields = $obj->getFields();
+
+        // Préparation de la requête
+        if ($this->stmtUpdate === null) {
+            $sql = "UPDATE $this->table SET $this->updateClause WHERE $this->keyClause";
+            $this->stmtUpdate = $this->pdo->prepare($sql);
+        }
+
+        // Éxécution de la requête
+        if ($this->stmtUpdate->execute($fields) < 0)
+            throw new TableException();
     }
-    
-    abstract function insert($obj);
-    abstract function update($obj);
+
+    /**
+     * Insère un enregistrement en base et retourne le modèle associé
+     * @param array $fields
+     * @return Object
+     * @throws TableException
+     */
+    public function create($fields)
+    {
+        // Suppression des clés si auto incrément
+        if (! $this->increment) {
+            foreach($this->key as $key) {
+                unset($fields[$key]);
+            }
+        }
+
+        // Préparation de la requête
+        if ($this->stmtCreate === null) {
+            $params = implode(',', array_fill(0, count($fields), '?'));
+            $sql = "INSERT INTO $this->table VALUES($params)";
+            $this->stmtCreate = $this->pdo->prepare($sql);
+        }
+
+        // Exécution de la requête
+        if ($this->stmtCreate->execute($fields) < 0)
+            throw new TableException('Insert fails!');
+
+        // Récupération de la clé auto incrémentée
+        if ($this->increment) {
+            $fields[$this->key[0]] = $this->pdo->lastInsertId();
+        }
+
+        return new $this->class($fields);
+    }
 
     /**
      * Supprime un enregistrement en base
-     * @param int $id
-     * @return bool
+     * @param array|string $key
+     * @throws TableException
      */
-    public function delete($key) 
+    public function delete($key)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM $this->table WHERE $this->keyWhereClause");
-        return $stmt->execute($key);
-    }
+        // Préparation de la requête
+        if ($this->stmtDelete === null) {
+            $sql = "DELETE FROM $this->table WHERE $this->keyClause";
+            $this->stmtDelete = $this->pdo->prepare($sql);
+        }
 
+        // Formatage de la clé primaire
+        $key = (is_array($key)) ? $key : [$key];
+        $key = array_combine($this->key, $key);
+
+        // Exécution de la requête
+        if ($this->stmtDelete->execute($key) < 0)
+            throw new TableException('Deletion fails!');
+    }
 }

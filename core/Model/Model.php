@@ -1,59 +1,70 @@
-<?php 
+<?php
 
 namespace Core\Model;
 
-class Model {
-
-    // Field names and values
-    protected $fields = [];
+/**
+ * Class Model
+ * @package Core\Model
+ * Représente un enregistrement d'une table
+ */
+abstract class Model implements \JsonSerializable
+{
+    /**
+     * Champs du JSON
+     * @var array
+     */
+    protected $jsonnable = [];
 
     /**
-     * Constructor
-     */ 
-    public function __construct($fields) {
-        $this->fields = $fields;        
-    }
+     * Champs éditables
+     * @var array
+     */
+    protected $fillable = [];
 
     /**
-     * Properties to string
-     * @return string
-     */ 
-    public function __tostring()
+     * Setter
+     * @param $field
+     * @param $value
+     */
+    public function __set($field, $value)
     {
-         return implode("\t", $this->fields);
+        if (in_array($field, $this->fillable))
+            $this->$field = $value;
     }
 
     /**
-     * Magic getter
-     * @param string $field
+     * Retourne les champs du modèle
+     * @return array
+     */
+    public function getFields()
+    {
+        return get_object_vars($this);
+    }
+
+    /**
+     * Implémentation de JsonSerializable
      * @return string
      */
-    public function __get($field) {
-        if (isset($this->fields[$field]))
-            return $this->fields[$field];
-        throw new ModelException("Invalid field name $field in ". get_class($this));
+    public function jsonSerialize()
+    {
+        $data = [];
+        $fields = get_object_vars($this);
+
+        foreach($this->jsonnable as $f) {
+            $data[] = $fields[$f];
+        }
+
+        return $data;
     }
 
     /**
-     * Magic setter
-     * @param string $field
-     * @param string $value    
+     * Retourne la représentation JSON du modèle
+     * @return string
      */
-    public function __set($field, $value) {
-        if (isset($this->fields[$field]))
-            $this->fields[$field] = $value;
-        else 
-            throw new ModelException("Invalid field name $field in ". get_class($this));
+    public function toJSON()
+    {
+        return json_encode($this);
     }
-    
-    /**
-     * Test if property is set
-     * @param string $field
-     * @return bool
-     */
-    public function __isset($field) {
-        return isset($this->fields[$field]);
-    }
-    
 }
+
 ?>
