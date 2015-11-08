@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-use Core\Controller\Controller;
-use Core\Database\Database;
+use App\App;
 use Core\Config;
+use Core\Controller\Controller;
 
 class AppController extends Controller
 {
@@ -19,7 +19,7 @@ class AppController extends Controller
 
     public function loadModel($model)
     {
-        $this->$model = new $model(Database::getInstance());
+        $this->$model = new $model(App::getInstance()->getDatabase());
     }
 
 }

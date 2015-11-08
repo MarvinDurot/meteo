@@ -1,21 +1,23 @@
 <?php
 
 namespace App;
+use Core\Database\Database;
+use Core\Config;
 
-
+/**
+ * Class App
+ * @package App
+ */
 class App
 {
-    public $title;
+    public $title = "API Météo";
     private $database;
-    private $config;
-
     private static $_instance;
 
-    public function __construct()
-    {
-
-    }
-
+    /**
+     * Retourne l'instance de l'application
+     * @return App
+     */
     public static function getInstance()
     {
         if (self::$_instance === null) {
@@ -24,12 +26,20 @@ class App
         return self::$_instance;
     }
 
-    public function getDb()
+    /**
+     * Retourne la Database de l'application
+     * @return Database
+     */
+    public function getDatabase()
     {
         if ($this->database === null) {
-            $this->database = new Database($config->get('db_host'), $config->get('db_name'), $config->get('db_user'), $config->get('db_password'));
+            $this->database = new Database(
+                Config::get('database.host'),
+                Config::get('database.database'),
+                Config::get('database.username'),
+                Config::get('database.password')
+            );
         }
         return $this->database;
     }
-
 }

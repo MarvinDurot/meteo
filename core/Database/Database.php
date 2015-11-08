@@ -4,53 +4,52 @@ namespace Core\Database;
 
 /**
  * Class Database
- * Singleton de connexion à la base de données
+ * Permet de se connecter à une base de données
  */
 class Database
 {
-    // Instance de la classe
-    private static $instance = null;
-    
-    // Objet PDO
+    /**
+     * Driver PDO
+     */
     private $pdo;
     
     private $host;
     private $database;    
     private $username;
     private $password;
-    
+
     /**
-     * Constructeur
+     * Database constructor.
+     * @param $host
+     * @param $database
+     * @param $username
+     * @param $password
      */
     public function __construct($host, $database, $username, $password)
-    {        
-        $dsn = 'mysql:host='.$this->host.'; dbname='.$this->database.';charset=utf8';
-        
-        try{
-            $this->pdo = new PDO($dsn, $this->username, $this->password);
-        }
-        catch(PDOException $e){
-            throw new DatabaseException();
-        }
+    {
+        $this->host = $host;
+        $this->database = $database;
+        $this->username = $username;
+        $this->password = $password;
     }
-    
-    /**
-     * Retourne l'instance de la classe de la base
-     * @return null|Database
-     */
-    static function getInstance()
-    {       
-        if (!self::$instance instanceof self) {
-            self::$instance = new self;
-        }
-        return self::$instance;
-    }
-    
+
     /**
      * Retourne l'objet PDO de la base
      */
     public function getPDO()
     {
+        if($this->pdo === null) {
+            // Construction de la chaîne de connexion
+            $dsn = 'mysql:host='.$this->host.'; dbname='.$this->database.';charset=utf8';
+
+            // Création de l'objet PDO avec contrôle d'erreur
+            try { $this->pdo = new \PDO($dsn, $this->username, $this->password); }
+            catch(\PDOException $e) { throw new DatabaseException(); }
+
+            // On affiche les erreurs SQL
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        }
+
         return $this->pdo;
-    }   
+    }
 }

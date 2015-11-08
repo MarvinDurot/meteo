@@ -13,7 +13,7 @@ class Config
      * Tous les éléments de du fichier de config chargé
      * @var array
      */
-    public static $items = [];
+    private static $items = [];
 
     /**
      * Charge un fichier de configuration
@@ -22,7 +22,7 @@ class Config
      */
     public static function load($filepath)
     {
-        static::$items = include('../app/config/' . $filepath . '.php');
+        static::$items = include(dirname(__DIR__) . '/app/config/' . "$filepath.php");
     }
 
     /**

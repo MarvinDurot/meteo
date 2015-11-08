@@ -7,30 +7,13 @@ namespace Core\Model;
  * @package Core\Model
  * Représente un enregistrement d'une table
  */
-abstract class Model implements \JsonSerializable
+class Model implements \JsonSerializable
 {
     /**
      * Champs du JSON
      * @var array
      */
     protected $jsonnable = [];
-
-    /**
-     * Champs éditables
-     * @var array
-     */
-    protected $fillable = [];
-
-    /**
-     * Setter
-     * @param $field
-     * @param $value
-     */
-    public function __set($field, $value)
-    {
-        if (in_array($field, $this->fillable))
-            $this->$field = $value;
-    }
 
     /**
      * Retourne les champs du modèle
@@ -47,18 +30,13 @@ abstract class Model implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        $data = [];
-        $fields = get_object_vars($this);
-
-        foreach($this->jsonnable as $f) {
-            $data[] = $fields[$f];
-        }
-
-        return $data;
+        return array_filter($this->getFields(), function ($value, $key) {
+            return in_array($key, $this->jsonnable);
+        });
     }
 
     /**
-     * Retourne la représentation JSON du modèle
+     * Convertit le modèle en chaine JSON
      * @return string
      */
     public function toJSON()

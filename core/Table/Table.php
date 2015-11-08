@@ -6,26 +6,25 @@ namespace Core\Table;
  * Class Table
  * Table générique
  */
-abstract class Table
+class Table
 {
     /**
-     * Propriétés obligatoires :
-     * -> objet PDO
-     * -> nom de la table
-     * -> nom du modèle associé
+     * Objet PDO
      */
     protected $pdo;
-    protected $table;
-    protected $class;
 
     /**
-     * Nom des champs composant
-     * la clé primaire de la table
+     * Propriétés obligatoires :
+     * -> nom de la table
+     * -> nom du modèle associé
+     * -> nom des champs de la clé primaire
      */
+    protected $table;
+    protected $class;
     protected $key = [];
 
     /**
-     * Indique si la clé primaire est autoincrémentée
+     * Indique si la clé primaire est auto-incrémentée
      */
     protected $increment = true;
 
