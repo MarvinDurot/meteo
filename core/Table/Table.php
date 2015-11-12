@@ -32,7 +32,7 @@ class Table
      * Nom des colonnes de la table
      * (sans le ou les clés primaires)
      */
-    protected $columns;
+    protected $columns = [];
 
     /**
      * Clauses
@@ -43,8 +43,8 @@ class Table
     /**
      * Requêtes préparées
      */
+    protected $stmtWhere = [];
     protected $stmtFind = null;
-    protected $stmtWhere = null;
     protected $stmtDelete = null;
     protected $stmtCreate = null;
     protected $stmtUpdate = null;
@@ -133,33 +133,51 @@ class Table
     }
 
     /**
-     * Récupère plusieurs enregistrement selon un simple critère d'égalité
+     * Récupère plusieurs enregistrement selon un critère d'égalité
      * @param string $column
      * @param string $value
      * @param int $limit
      * @return array
+     * @throws TableException
      */
-    public function where($column, $value, $limit = 0)
+    public function where($column, $value, $limit = 1000)
     {
         // Préparation de la requête
-        if ($this->stmtWhere === null) {
-            $sql = "SELECT * FROM $this->table WHERE ?=? LIMIT ?";
-            $this->stmtWhere = $this->pdo->prepare($sql);
+        if (! isset($this->stmtWhere[$column])) {
+            // Pour éviter les injections on vérifie l'existence de la colonne
+            if (! in_array($column, array_merge($this->columns, $this->key)))
+                throw new TableException('Invalid column name!');
+
+            $sql = "SELECT * FROM $this->table WHERE $column = :value LIMIT :limit";
+            $this->stmtWhere[$column] = $this->pdo->prepare($sql);
         }
 
         // Éxécution de la requête et récupération des résultats
-        $this->stmtWhere->execute([$column, $value, $limit]);
-        $this->stmtWhere->setFetchMode(\PDO::FETCH_CLASS, $this->class);
-        return $this->stmtWhere->fetchAll();
+        $this->stmtWhere[$column]->bindParam(':value', $value, \PDO::PARAM_STR, 12);
+        $this->stmtWhere[$column]->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        $this->stmtWhere[$column]->execute();
+        return $this->stmtWhere[$column]->fetchAll(\PDO::FETCH_CLASS, $this->class);
     }
 
     /**
      * Récupère tous les enregistrements de la table
+     * (Possibilité de définir les champs à récupérer)
      * @return mixed
      */
     public function all()
     {
-        $stmt = $this->pdo->query("SELECT * FROM $this->table");
+        // Si colonnes explicites
+        if (func_num_args() > 0) {
+            // Récupération des colonnes à afficher
+            $columns = implode(',', array_intersect(
+                array_merge($this->key, $this->columns), func_get_args())
+            );
+        } else {
+            // Sinon on récupère tout
+            $columns = '*';
+        }
+
+        $stmt = $this->pdo->query("SELECT $columns FROM $this->table");
         return $stmt->fetchAll(\PDO::FETCH_CLASS, $this->class);
     }
 
