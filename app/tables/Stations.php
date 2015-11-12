@@ -33,7 +33,15 @@ class Stations extends Table
 
         // Éxécution de la requête et récupération des résultats
         $this->stmtRelation->execute([$id]);
-        $station->conversions = $this->stmtRelation->fetchAll(\PDO::FETCH_ASSOC|\PDO::FETCH_GROUP);
+        $conversions = $this->stmtRelation->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Groupement par mesure
+        foreach ($conversions as $conversion) {
+            $station->conversions[$conversion['mesure']] = [
+                'a' => $conversion['a'],
+                'b' => $conversion['b']
+            ];
+        }
 
         return $station;
     }
