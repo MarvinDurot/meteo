@@ -34,15 +34,6 @@ class Model implements \JsonSerializable
             return in_array($key, $this->jsonnable);
         }, ARRAY_FILTER_USE_KEY);
     }
-
-    /**
-     * Convertit le modèle en chaine JSON
-     * @return string
-     */
-    public function toJSON()
-    {
-        return json_encode($this);
-    }
 }
 
 ?>
