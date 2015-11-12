@@ -14,12 +14,12 @@ class AppController extends Controller
 
     public function __construct()
     {
-        $this->viewPath = Config::get('dir.views');
+//        $this->viewPath = Config::get('dir.views');
     }
 
-    public function loadModel($model)
+    public function loadModel($class, $modelName)
     {
-        $this->$model = new $model(App::getInstance()->getDatabase());
+        $this->$modelName = new $class(App::getInstance()->getDatabase()->getPDO());
     }
 
 }
