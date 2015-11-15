@@ -1,19 +1,18 @@
 <?php
 
 namespace App\Models;
-
 use Core\Model\Model;
 
+/**
+ * Class Station
+ * @package App\Models
+ */
 class Station extends Model
 {
-    protected $jsonnable = [
-        'id',
-        'libellé',
-        'latitude',
-        'longitude',
-        'altitude'
-    ];
-
+    /**
+     * Table de conversion des mesures
+     * @var array
+     */
     public $conversions = [];
 
     /**
@@ -25,10 +24,11 @@ class Station extends Model
     {
         // Pour chaque unité de la table de conversion
         foreach ($this->conversions as $type => $coeffs) {
+
             // Si le type de mesure existe
-            if ($mesure->$type !== null) {
-                $mesure->$type =
-                    round($mesure->$type * $coeffs['a'] - $coeffs['b'], 0);
+            if (!empty($mesure->$type)) {
+                $res = $mesure->$type * $coeffs['a'] - $coeffs['b'];
+                $mesure->$type = round($res, 0);
             }
         }
     }

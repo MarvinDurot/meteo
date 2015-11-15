@@ -35,7 +35,7 @@ class Stations extends Table
         $this->stmtRelation->execute([$id]);
         $conversions = $this->stmtRelation->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Groupement par mesure
+        // Groupement par type de mesure
         foreach ($conversions as $conversion) {
             $station->conversions[$conversion['mesure']] = [
                 'a' => $conversion['a'],
