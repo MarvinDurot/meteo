@@ -12,7 +12,7 @@ CREATE TABLE `Conversions` (
   `mesure` varchar(16) NOT NULL,
   `a` float NOT NULL,
   `b` float NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Fonction affine de conversion';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Fonction affine de conversion';
 
 INSERT INTO `Conversions` (`station`, `mesure`, `a`, `b`) VALUES
 ('Alboussière', 'pressure', 0.585938, 450),
@@ -32,7 +32,7 @@ CREATE TABLE `Mesures` (
   `hygro` smallint(6) DEFAULT NULL,
   `windSpeed` float DEFAULT NULL,
   `windDir` smallint(6) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Mesures d''une station donnée à un instant donné';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Mesures d''une station donnée à un instant donné';
 
 INSERT INTO `Mesures` (`station`, `quand`, `temp1`, `temp2`, `pressure`, `lux`, `hygro`, `windSpeed`, `windDir`) VALUES
 ('Alboussière', '2015-10-25 10:00:00', 5.5, 4, 1008, NULL, NULL, NULL, NULL),
@@ -50,13 +50,13 @@ INSERT INTO `Mesures` (`station`, `quand`, `temp1`, `temp2`, `pressure`, `lux`, 
 
 CREATE TABLE `Stations` (
   `id` varchar(32) NOT NULL,
-  `libellé` varchar(128) DEFAULT NULL,
+  `libelle` varchar(128) DEFAULT NULL,
   `latitude` float DEFAULT NULL,
   `longitude` float DEFAULT NULL,
   `altitude` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Description d''une station';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Description d''une station';
 
-INSERT INTO `Stations` (`id`, `libellé`, `latitude`, `longitude`, `altitude`) VALUES
+INSERT INTO `Stations` (`id`, `libelle`, `latitude`, `longitude`, `altitude`) VALUES
 ('Alboussière', 'Station d''altitude du pays de Crussol', 44.9434, 4.72924, 547),
 ('Montélimar', 'Station du vrai début du Sud', 44.5569, 4.7495, 86);
 
