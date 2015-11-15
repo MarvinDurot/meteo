@@ -12,9 +12,9 @@ class Controller
     {
         ob_start();
         extract($variables);
-        $view = $this->viewPath . str_replace('.', '/', $view) . '.php';
+        require($this->viewPath . str_replace('.', '/', $view) . '.php');
         $content = ob_get_clean();
-        require($this->viewPath . $this->template . '.php');
+        require($this->viewPath . '/templates/' . $this->template . '.php');
     }
 
     protected function notFound()
