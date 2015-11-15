@@ -17,7 +17,7 @@ class ApiController extends AppController
      */
     public function stations()
     {
-        echo json_encode($this->Station->all('id', 'libellé'));
+        echo json_encode($this->Station->all('id', 'libelle'));
     }
 
     /**
@@ -33,7 +33,7 @@ class ApiController extends AppController
      * Affiche les 5 derniers relevés d'une station
      * @param $station
      */
-    public function releves($station = null)
+    public function releves($station)
     {
         $s = $this->Station->find($station);
         $mesures = $this->Mesure->where('station', $station, 5);
@@ -44,8 +44,20 @@ class ApiController extends AppController
     /**
      * Ajoute un relevé
      */
-    public function add()
+    public function add($station)
     {
-
+        if (!empty($_POST)) {
+            return $this->Mesure->create([
+                'station' => $station,
+                'quand' => date('Y-m-d G:i:s'),
+                'temp1' => $_POST['temp1'],
+                'temp2' => $_POST['temp2'],
+                'pressure' => $_POST['pressure'],
+                'lux' => $_POST['lux'],
+                'hydro' => $_POST['hydro'],
+                'windSpeed' => $_POST['windSpeed'],
+                'windDir' => $_POST['windDir']
+            ]);
+        }
     }
 }
