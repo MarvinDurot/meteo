@@ -8,8 +8,8 @@ class ApiController extends AppController
     public function __construct()
     {
         parent::__construct();
-        $this->loadModel('App\Tables\Stations', 'Station');
-        $this->loadModel('App\Tables\Mesures', 'Mesure');
+        $this->loadTable('App\Tables\Stations', 'stations');
+        $this->loadTable('App\Tables\Mesures', 'mesures');
     }
 
     /**
@@ -17,7 +17,7 @@ class ApiController extends AppController
      */
     public function stations()
     {
-        echo json_encode($this->Station->all('id', 'libelle'));
+        echo json_encode($this->stations->all('id', 'libelle'));
     }
 
     /**
@@ -26,35 +26,35 @@ class ApiController extends AppController
      */
     public function station($id)
     {
-        echo json_encode($this->Station->find($id));
+        echo json_encode($this->stations->find($id));
     }
 
     /**
      * Affiche les 5 derniers relevés d'une station
      * @param $station
      */
-    public function releves($station)
+    public function mesures($station)
     {
-        $s = $this->Station->find($station);
-        $mesures = $this->Mesure->where('station', $station, 5);
+        $s = $this->stations->find($station);
+        $mesures = $this->mesures->where('station', $station, 'ORDER BY quand DESC LIMIT 5');
         array_walk($mesures, array($s, 'convert'));
         echo json_encode($mesures);
     }
 
     /**
-     * Ajoute un relevé
+     * Insert un nouveau relevé
      */
-    public function add($station)
+    public function create()
     {
         if (!empty($_POST)) {
-            return $this->Mesure->create([
-                'station' => $station,
-                'quand' => date('Y-m-d G:i:s'),
+            return $this->mesures->create([
+                'station' => $_POST['station'],
+                'quand' => date('Y-m-d H:i:s', time()),
                 'temp1' => $_POST['temp1'],
                 'temp2' => $_POST['temp2'],
                 'pressure' => $_POST['pressure'],
                 'lux' => $_POST['lux'],
-                'hydro' => $_POST['hydro'],
+                'hygro' => $_POST['hygro'],
                 'windSpeed' => $_POST['windSpeed'],
                 'windDir' => $_POST['windDir']
             ]);

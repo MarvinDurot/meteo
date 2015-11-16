@@ -2,13 +2,9 @@
 <div class="row">
 
     <div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
-        <a class="btn-floating btn-large red">
+        <a href="../mesures/<?= $station->id; ?>" class="btn-floating btn-large red">
             <i class="large material-icons">add</i>
         </a>
-        <ul>
-            <li><a href="../releves/<?= $station->id ?>" class="btn-floating red"><i class="material-icons">playlist_add</i></a></li>
-            <li><a class="btn-floating green"><i class="material-icons">publish</i></a></li>
-        </ul>
     </div>
 
     <div class="col s12 m4">

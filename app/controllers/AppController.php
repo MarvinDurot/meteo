@@ -14,7 +14,7 @@ class AppController extends Controller
         $this->viewPath = ROOT . '/app/views/';
     }
 
-    public function loadModel($class, $modelName)
+    public function loadTable($class, $modelName)
     {
         $this->$modelName = new $class(App::getInstance()->getDatabase()->getPDO());
     }
