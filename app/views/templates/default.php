@@ -9,6 +9,7 @@
     <!-- CSS  -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.2/css/materialize.min.css">
+    <link rel="stylesheet" href="<?= HOME; ?>/public/css/all.css">
 
     <!--  Scripts-->
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -16,13 +17,13 @@
 </head>
 <body>
 <nav class="light-blue lighten-1" role="navigation">
-    <div class="nav-wrapper container"><a id="logo-container" href="/" class="brand-logo">Météo</a>
+    <div class="nav-wrapper container"><a id="logo-container" href="<?= HOME; ?>" class="brand-logo">Météo</a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="./api">API</a></li>
+            <li><a href="<?= HOME; ?>/api">API</a></li>
         </ul>
 
         <ul id="nav-mobile" class="side-nav">
-            <li><a href="./api">API</a></li>
+            <li><a href="<?= HOME; ?>/api">API</a></li>
         </ul>
         <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
     </div>
