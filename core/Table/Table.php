@@ -42,7 +42,6 @@ class Table
     /**
      * Requêtes préparées
      */
-    protected $stmtWhere = [];
     protected $stmtFind = null;
     protected $stmtDelete = null;
     protected $stmtCreate = null;
@@ -95,11 +94,11 @@ class Table
     }
 
     /**
-     * Retourne la clé sous forme de tableau associatif
+     * Formate une clé sous forme de tableau associatif
      * @param $key
      * @return array
      */
-    private function getKey($key)
+    private function formatKey($key)
     {
         $values = (is_array($key)) ? $key : [$key];
         return array_combine($this->key, $values);
@@ -138,7 +137,7 @@ class Table
         }
 
         // Éxécution de la requête
-        $this->stmtFind->execute($this->getKey($key));
+        $this->stmtFind->execute($this->formatKey($key));
 
         // Récupération des résultats
         if (! $record = $this->stmtFind->fetch(\PDO::FETCH_ASSOC)) {
@@ -152,30 +151,28 @@ class Table
      * Récupère plusieurs enregistrements selon un critère d'égalité
      * @param string $column
      * @param string $value
-     * @param int $limit
+     * @param string $options
      * @return array
      * @throws TableException
      */
-    public function where($column, $value, $limit = 1000)
+    public function where($column, $value, $options = '')
     {
         // Préparation de la requête
-        if (!isset($this->stmtWhere[$column]))
-            $this->newWhereStatement($column);
+        $sql = "SELECT * FROM $this->table WHERE $column = ? $options";
+        $stmt = $this->pdo->prepare($sql);
 
         // Éxécution de la requête
-        $this->stmtWhere[$column]->bindParam(':value', $value, \PDO::PARAM_STR, 12);
-        $this->stmtWhere[$column]->bindParam(':limit', $limit, \PDO::PARAM_INT);
-        $this->stmtWhere[$column]->execute();
+        $stmt->execute([$value]);
 
         // Récupération des résultats
-        if (! $res = $this->stmtWhere[$column]->fetchAll(\PDO::FETCH_ASSOC) ) {
+        if (! $records = $stmt->fetchAll(\PDO::FETCH_ASSOC) ) {
             throw new TableException('No record found!');
         }
 
         // Instanciation des objets
         return array_map(function ($fields) {
             return new $this->class($fields);
-        }, $res);
+        }, $records);
     }
 
     /**
@@ -264,25 +261,10 @@ class Table
 
         try {
             // Exécution de la requête
-            return $this->stmtDelete->execute($this->getKey($key));
+            return $this->stmtDelete->execute($this->formatKey($key));
         } catch (\PDOException $e) {
             throw new TableException("Failed deletion!\n" . $e->getTraceAsString());
         }
-    }
-
-    /**
-     * Préparation d'une requête WHERE
-     * @param $column
-     * @throws TableException
-     */
-    private function newWhereStatement($column)
-    {
-        // Pour éviter les injections on vérifie l'existence de la colonne
-        if (!in_array($column, $this->columns + $this->key))
-            throw new TableException('Invalid column name!');
-
-        $sql = "SELECT * FROM $this->table WHERE $column = :value LIMIT :limit";
-        $this->stmtWhere[$column] = $this->pdo->prepare($sql);
     }
 
     /**
