@@ -16,7 +16,7 @@ class Station extends Model
     public $conversions = [];
 
     /**
-     * Convertit une mesure avec la fonction affine de la station
+     * Convertion d'une mesure avec la fonction affine de la station
      * @param $mesure
      * @return void
      */

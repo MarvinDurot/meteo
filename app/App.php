@@ -10,7 +10,6 @@ use Core\Config;
  */
 class App
 {
-    public $title = "API Météo";
     private $database;
     private static $_instance;
 
@@ -27,7 +26,7 @@ class App
     }
 
     /**
-     * Retourne la Database de l'application
+     * Retourne l'instance de la database de l'application
      * @return Database
      */
     public function getDatabase()
