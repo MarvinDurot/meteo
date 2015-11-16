@@ -4,17 +4,17 @@
     </div>
 </div>
 <div class="row">
-    <form method="POST" class="col s12">
+    <form method="POST" class="col s12" enctype="multipart/form-data">
         <div class="file-field input-field">
             <div class="btn">
                 <span>Upload</span>
-                <input type="file" multiple>
+                <input name="csv" type="file" multiple>
             </div>
             <div class="file-path-wrapper">
-                <input class="file-path validate" type="text" placeholder="Fichier XML">
+                <input class="file-path validate" type="text" placeholder="Fichier CSV">
             </div>
         </div>
-        <button class="btn waves-effect waves-light right" type="submit" name="two">Envoyer
+        <button class="btn waves-effect waves-light right" type="submit" name="send">Envoyer
             <i class="material-icons right">send</i>
         </button>
     </form>
@@ -29,3 +29,9 @@
         <?php endif ?>
     </script>
 <?php endif; ?>
+
+<div class="fixed-action-btn horizontal" style="bottom: 45px; right: 24px;">
+    <a href="<?= HOME; ?>" class="btn-floating btn-large red">
+        <i class="large material-icons">replay</i>
+    </a>
+</div>

@@ -46,9 +46,9 @@
 <?php if (isset($result)): ?>
 <script>
     <?php if ($result): ?>
-    Materialize.toast('Relevé ajouté avec succès !', 5000, 'rounded');
+    Materialize.toast('Relevé ajouté avec succès !', 3000, 'rounded');
     <?php else: ?>
-    Materialize.toast('Erreur dans l\'ajout du relevé !', 5000, 'rounded');
+    Materialize.toast('Erreur dans l\'ajout du relevé !', 3000, 'rounded');
     <?php endif ?>
 </script>
 <?php endif; ?>

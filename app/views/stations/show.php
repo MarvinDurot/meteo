@@ -11,9 +11,17 @@
         <h5><?= $station->id; ?></h5>
 
         <p class="light"><?= $station->libelle; ?></p>
-        <p>Latitude: <?= $station->latitude; ?></p>
-        <p>Longitude: <?= $station->longitude; ?></p>
-        <p>Altitude: <?= $station->altitude; ?></p>
+
+
+        <dl>
+            <dt>Latitude</dt>
+            <dd><?= $station->latitude; ?></dd>
+            <dt>Longitude</dt>
+            <dd><?= $station->longitude; ?></dd>
+            <dt>Altitude</dt>
+            <dd><?= $station->altitude; ?></dd>
+        </dl>
+
     </div>
 
     <div class="col s12 m8">

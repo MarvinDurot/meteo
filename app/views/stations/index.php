@@ -3,7 +3,7 @@
     <?php foreach ($stations as $station): ?>
         <li class="collection-item">
             <div>
-                <strong><?= $station->id ?></strong> : <?= $station->libelle ?>
+                <strong><?= $station->id ?></strong> // <?= $station->libelle ?>
                 <a href="stations/<?= $station->id; ?>" class="secondary-content">
                     <i class="material-icons">send</i></a>
             </div>
