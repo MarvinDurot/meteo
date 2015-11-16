@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Controllers;
+use Core\File\CSVFile;
+use Core\File\FileException;
+use Core\Table\TableException;
 
 /**
  * Class MesuresController
@@ -24,9 +27,15 @@ class MesuresController extends AppController
      */
     public function create($id)
     {
+        // Récupération de la station
         $station = $this->stations->find($id);
 
+        // Si aucune station trouvée
+        if (empty($station)) $this->notFound();
+
         if (!empty($_POST)) {
+
+            // Création d'une mesure
             $result = $this->mesures->create([
                 'station' => $id,
                 'quand' => date('Y-m-d H:i:s', time()),
@@ -40,28 +49,53 @@ class MesuresController extends AppController
             ]);
         }
 
+        // Affichage de la vue
         $this->render('mesures.create', compact('station', 'result'));
     }
 
     /**
-     * Création de plusieurs relevés à partir d'un fichier XML
+     * Création de plusieurs relevés à partir d'un fichier CSV
      */
     public function upload()
     {
-        if (!empty($_POST)) {
+        if (!empty($_POST) && isset($_FILES['csv'])) {
             $result = true;
 
-            $upload = (object)$_FILES['xml'];
-            $xml = $upload->error ? NULL : simplexml_load_file($upload->tmp_name);
+            try {
+                // Récupération du fichier
+                $csv = new CSVFile($_FILES['csv']);
+                $station_name = explode('.', $csv->name)[0];
 
-            // Création des relevés
-            foreach ($xml as $station) {
-                $result = $this->mesures->create($station);
-                if (!$result) break;
+                // Parcours du CSV et création des relevés
+                foreach ($csv->getIterator() as $station) {
+                    if (empty($station)) continue;
+
+                    try {
+                        $result = $this->mesures->create([
+                            'station' => $station_name,
+                            'quand' => $station['quand'],
+                            'temp1' => $station['temp1'],
+                            'temp2' => $station['temp2'],
+                            'pressure' => $station['pressure'],
+                            'lux' => $station['lux'],
+                            'hygro' => $station['hygro'],
+                            'windSpeed' => $station['windSpeed'],
+                            'windDir' => $station['windDir']
+                        ]);
+                    } catch(TableException $e) {
+                        $result = false;
+                        break;
+                    }
+
+                    if (!$result) break;
+                }
+
+            } catch(FileException $e) {
+                $result = false;
             }
         }
 
+        // Affichage de la vue
         $this->render('mesures.upload', compact('result'));
     }
-
 }
