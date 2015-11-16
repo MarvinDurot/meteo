@@ -3,8 +3,13 @@ require '../vendor/autoload.php';
 use Core\Router\Router;
 use \App\Controllers\ApiController;
 use \App\Controllers\StationsController;
+use \App\Controllers\MesuresController;
 
+// Racine de l'application
 define('ROOT', dirname(__DIR__));
+
+// Réglage du fuseau pour les timestamps
+date_default_timezone_set('Europe/Paris');
 
 // Création du routeur
 $router = new Router($_GET['url']);
@@ -23,8 +28,24 @@ $router->get('/stations/:id', function ($id) {
     $controller->show($id);
 });
 
-$router->get('/releves/:station', function ($station) {
-    // formulaire d'ajout
+$router->get('/mesures/:station', function ($station) {
+    $controller = new MesuresController();
+    $controller->create($station);
+});
+
+$router->post('/mesures/:station', function ($station) {
+    $controller = new MesuresController();
+    $controller->create($station);
+});
+
+$router->get('/mesures', function () {
+    $controller = new MesuresController();
+    $controller->upload();
+});
+
+$router->post('/mesures', function () {
+    $controller = new MesuresController();
+    $controller->upload();
 });
 
 /**
@@ -46,15 +67,14 @@ $router->get('/api/stations/:id', function ($id) {
     $controller->station($id);
 });
 
-$router->get('/api/releves/:station', function ($station) {
+$router->get('/api/mesures/:station', function ($station) {
     $controller =  new ApiController();
-    $controller->releves($station);
+    $controller->mesures($station);
 });
 
-$router->post('/api/releves/:station', function ($station) {
+$router->post('/api/mesures', function () {
     $controller =  new ApiController();
-    $controller->add($station);
+    $controller->create();
 });
-
 
 $router->run();
