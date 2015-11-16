@@ -5,11 +5,18 @@ use \App\Controllers\ApiController;
 use \App\Controllers\StationsController;
 use \App\Controllers\MesuresController;
 
-// Racine de l'application
+/**
+ * Paramètrage principal
+ */
+// Racine de l'application et URL de base
 define('ROOT', dirname(__DIR__));
+define('HOME', '/meteo');
 
 // Réglage du fuseau pour les timestamps
 date_default_timezone_set('Europe/Paris');
+
+// Détection automatique des fins de ligne
+ini_set('auto_detect_line_endings', true);
 
 // Création du routeur
 $router = new Router($_GET['url']);
