@@ -16,5 +16,7 @@
             "Core\\": "core"
         }
     },
-    "require": {}
+    "require": {
+        "michelf/php-markdown": "^1.5"
+    }
 }
