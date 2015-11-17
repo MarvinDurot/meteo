@@ -1,8 +1,8 @@
 <?php
 
 return array(
-    'host' => 'localhost',
-    'username' => 'root',
-    'password' => 'root',
-    'database' => 'meteo'
+    'host' => '',
+    'username' => '',
+    'password' => '',
+    'database' => ''
 );
