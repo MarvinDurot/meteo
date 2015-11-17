@@ -32,3 +32,4 @@ public/               => Partie publique de l'application
 - Activer l'URL Rewriting : `a2enmod rewrite`
 - Importer la base de données : `mysql -u USER -p --database BASE < app/migration/meteo.sql`
 - Éditer le fichier de configuration : `app/config/database.php`
+- Mettre à jour les dépendances : `composer update`
