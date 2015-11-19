@@ -8,9 +8,15 @@ use \App\Controllers\MesuresController;
 /**
  * Paramètrage principal
  */
-// Racine de l'application et URL de base
+ 
+// Racine de l'application
 define('ROOT', dirname(__DIR__));
-define('HOME', '/meteo');
+
+// URL de base 
+define('HOME', substr(
+    $_SERVER['SCRIPT_NAME'], 0,
+    -strlen("/public/index.php")
+));
 
 // Réglage du fuseau pour les timestamps
 date_default_timezone_set('Europe/Paris');
